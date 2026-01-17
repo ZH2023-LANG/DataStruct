@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++ Build Active File",
+            "command": "D:/mingw64/bin/g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",  // 彩色错误提示
+                "-g",                         // 生成调试信息
+                "${file}",                     // 当前文件
+                "-o",                         // 输出文件
+                "${fileDirname}/${fileBasenameNoExtension}.exe",  // 统一用正斜杠
+                "-ID:/mingw64/include",        // 明确包含头文件路径（可选）
+                "-LD:/mingw64/lib"             // 明确库文件路径（可选）
+            ],
+            "options": {
+                "cwd": "${fileDirname}"        // 工作目录设为当前文件所在目录
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "编译器: D:/mingw64/bin/g++.exe"
+        }
+    ]
+}
