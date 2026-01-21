@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 typedef char VertexType;
 typedef int EdgeType;
 #define MAXSIZE 100
+#define MAX 0x7fffffff
+
 typedef struct 
 {
     VertexType vertex[MAXSIZE];
@@ -9,8 +12,6 @@ typedef struct
     int vertex_num;
     int edge_num;
 }Mat_Grph;
-
-int visited[MAXSIZE];
 
 
 void create_graph(Mat_Grph* G){
@@ -30,71 +31,85 @@ void create_graph(Mat_Grph* G){
     {
         for (int j = 0; j < G->vertex_num; j++)
         {
-            G->arc[i][j]=0;
+            if(i==j) G->arc[i][j]=0;
+            else G->arc[i][j]=MAX;
         }
-        
     }
-    G->arc[0][1]=1;
-    G->arc[0][5]=1;
-    G->arc[1][2]=1;
-    G->arc[0][1]=1;
-    G->arc[1][6]=1;
-    G->arc[1][8]=1;
+        // A-B  A-F
+    G->arc[0][1] = 10;
+    G->arc[0][5] = 11;
 
-    G->arc[2][3]=1;
-    G->arc[2][8]=1;
+    // B-C  B-G  B-I
+    G->arc[1][2] = 18;
+    G->arc[1][6] = 16;
+    G->arc[1][8] = 12;
 
-    G->arc[3][4]=1;
-    G->arc[3][6]=1;
-    G->arc[3][7]=1;
-    G->arc[3][8]=1;
+    // C-D  C-I
+    G->arc[2][3] = 22;
+    G->arc[2][8] = 8;
 
-    G->arc[4][5]=1;
-    G->arc[4][7]=1;
+    // D-E  D-G  D-H  D-I
+    G->arc[3][4] = 20;
+    G->arc[3][6] = 24;
+    G->arc[3][7] = 16;
+    G->arc[3][8] = 21;
 
-    G->arc[5][6]=1;
+    // E-F  E-H
+    G->arc[4][5] = 26;
+    G->arc[4][7] = 7;
 
-    G->arc[6][7]=1;
+    // F-G
+    G->arc[5][6] = 17;
+
+    // G-H
+    G->arc[6][7] = 19;
+
     for (int i = 0; i < G->vertex_num; i++)
     {
         for (int j = 0; j < G->vertex_num; j++)
         {
-            if(G->arc[i][j]==1) G->arc[j][i]=1;
-        }
-        
+            G->arc[j][i]=G->arc[i][j];
+        }   
     }
 }
 
-// void dfs(Mat_Grph G,int i){
-//     visited[i]=1;
-//     printf("%c\n",G.vertex[i]);
-//     for (int j = 0; j < G.vertex_num; j++)
-//     {
-//         if (G.arc[i][j]==1&&visited[j]==0)
-//         {
-//             dfs(G,j);
-//         }
-        
-//     }
-// }
 
+void prim(Mat_Grph* G){
+    int i,j,k;
+    int min;
 
-void bfs(Mat_Grph G,int start){
-    int queue[MAXSIZE];
-    int front=0,rear=0;
-    visited[start]=1;
-    printf("%c\n",G.vertex[start]);
-    queue[rear++]=start;
-    while (front!=rear)
+    int weight[MAXSIZE];
+    int vex_index[MAXSIZE];
+
+    weight[0]=0;
+    vex_index[0]=0;
+    for ( i = 0; i < G->vertex_num; i++)
     {
-        int u=queue[front++];
-        for (int v = 0; v < G.vertex_num; v++)
+        weight[i]=G->arc[0][i];
+        vex_index[i]=0;
+    }
+    for ( i = 1; i < G->vertex_num; i++)
+    {
+        min=MAX;
+        j=0;
+        k=0;
+        while (j<G->vertex_num)
         {
-            if (G.arc[u][v]==1&&visited[v]==0)
+            if (weight[j]!=0 && weight[j]<min)
             {
-                visited[v]=1;
-                printf("%c\n",G.vertex[v]);
-                queue[rear++]=v;                
+                min=weight[j];
+                k=j;
+            }
+            j++;
+        }
+        printf("(%c,%c)\n",G->vertex[vex_index[k]],G->vertex[k]);
+        weight[k]=0;
+        for (int j = 0; j < G->vertex_num; j++)
+        {
+            if (weight[j]!=0 && G->arc[k][j]<weight[j])
+            {
+                weight[j]=G->arc[k][j];
+                vex_index[j]=k;
             }
             
         }
@@ -105,12 +120,26 @@ void bfs(Mat_Grph G,int start){
 
 
 
+
 int main(){
     Mat_Grph G;
     create_graph(&G);
-    for (int i = 0; i < G.vertex_num; i++)
-    {
-        visited[i]=0;
-    }
-    bfs(G,0);
+    prim(&G);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
