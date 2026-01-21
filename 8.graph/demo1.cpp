@@ -1,3 +1,4 @@
+// 无向图深度搜索
 #include <stdio.h>
 
 /*
@@ -76,28 +77,40 @@ void create_graph(Mat_Grph* G)
             arc[v][u] = 1
     */
 
-    // ===== A-B  A-F =====
-    G->arc[0][1] = 1;  G->arc[1][0] = 1;   // A-B
-    G->arc[0][5] = 1;  G->arc[5][0] = 1;   // A-F
+    G->arc[0][1] = 1;    // A-B
+    G->arc[0][5] = 1;    // A-F
 
-    // ===== B-C  B-G  B-I =====
-    G->arc[1][2] = 1;  G->arc[2][1] = 1;   // B-C
-    G->arc[1][6] = 1;  G->arc[6][1] = 1;   // B-G
-    G->arc[1][8] = 1;  G->arc[8][1] = 1;   // B-I
+    G->arc[1][2] = 1;   // B-C
+    G->arc[1][6] = 1;   // B-G
+    G->arc[1][8] = 1;   // B-I
 
-    // ===== C-D  C-I =====
-    G->arc[2][3] = 1;  G->arc[3][2] = 1;   // C-D
-    G->arc[2][8] = 1;  G->arc[8][2] = 1;   // C-I
+    G->arc[2][3] = 1; // C-D
+    G->arc[2][8] = 1;   // C-I
 
     // ===== D-E  D-G  D-H  D-I =====
-    G->arc[3][4] = 1;  G->arc[4][3] = 1;   // D-E
-    G->arc[3][6] = 1;  G->arc[6][3] = 1;   // D-G
-    G->arc[3][7] = 1;  G->arc[7][3] = 1;   // D-H
-    G->arc[3][8] = 1;  G->arc[8][3] = 1;   // D-I
+    G->arc[3][4] = 1; 
+    G->arc[3][6] = 1;  
+    G->arc[3][7] = 1;  
+    G->arc[3][8] = 1;  
 
-    // ===== E-F  E-H =====
-    G->arc[4][5] = 1;  G->arc[5][4] = 1;   // E-F
-    G->arc[4][7] = 1;  G->arc[7][4] = 1;   // E-H
+    // ===== E-F E-H
+    G->arc[4][5] = 1; 
+    G->arc[4][7] = 1;  
+
+    // F-G
+    G->arc[5][6]=1;
+
+    //G-H
+    G->arc[6][7]=1;
+    
+    for (int i = 0; i < G->vertex_num; i++)
+    {
+        for (int j = 0; j < G->vertex_num; j++)
+        {
+            // G->arc[j][i] = G->arc[i][j];
+            if (G->arc[i][j] == 1) G->arc[j][i] = 1;
+        }
+    }
 }
 
 /*
