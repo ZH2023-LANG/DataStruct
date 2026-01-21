@@ -1,0 +1,3 @@
+demo.cpp
+git rm --cached demo.cpp
+git rm --cached demo.exe
