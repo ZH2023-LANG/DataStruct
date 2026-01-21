@@ -65,19 +65,43 @@ void create_graph(Mat_Grph* G){
     }
 }
 
-void dfs(Mat_Grph G,int i){
-    visited[i]=1;
-    printf("%c\n",G.vertex[i]);
-    for (int j = 0; j < G.vertex_num; j++)
+// void dfs(Mat_Grph G,int i){
+//     visited[i]=1;
+//     printf("%c\n",G.vertex[i]);
+//     for (int j = 0; j < G.vertex_num; j++)
+//     {
+//         if (G.arc[i][j]==1&&visited[j]==0)
+//         {
+//             dfs(G,j);
+//         }
+        
+//     }
+// }
+
+
+void bfs(Mat_Grph G,int start){
+    int queue[MAXSIZE];
+    int front=0,rear=0;
+    visited[start]=1;
+    printf("%c\n",G.vertex[start]);
+    queue[rear++]=start;
+    while (front!=rear)
     {
-        if (G.arc[i][j]==1&&visited[j]==0)
+        int u=queue[front++];
+        for (int v = 0; v < G.vertex_num; v++)
         {
-            dfs(G,j);
+            if (G.arc[u][v]==1&&visited[v]==0)
+            {
+                visited[v]=1;
+                printf("%c\n",G.vertex[v]);
+                queue[rear++]=v;                
+            }
+            
         }
         
     }
+    
 }
-
 
 
 
@@ -88,5 +112,5 @@ int main(){
     {
         visited[i]=0;
     }
-    dfs(G,0);
+    bfs(G,0);
 }
