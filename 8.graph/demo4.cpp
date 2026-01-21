@@ -140,8 +140,6 @@ void Kruskal(Mat_Grph G)
             }
         }
     }
-
-    // 保险：如果你写的 edge_num 和实际提取不一致，就以实际提取 k 为准
     // 否则容易越界或漏边
     int edge_num = k;
 
