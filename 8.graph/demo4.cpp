@@ -1,5 +1,3 @@
-// 克鲁斯卡尔（Kruskal）
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,7 +17,7 @@ typedef struct
     int edge_num;
 } Mat_Grph;
 
-// 边结构（用于 Kruskal）
+// 边（Kruskal 用）
 typedef struct
 {
     int begin;
@@ -27,7 +25,6 @@ typedef struct
     int weight;
 } Edge;
 
-// 创建图（A~I，15条边）
 void create_graph(Mat_Grph* G)
 {
     G->vertex_num = 9;
@@ -93,7 +90,6 @@ void create_graph(Mat_Grph* G)
     }
 }
 
-// 交换两条边（排序用）
 void swap(Edge* edges, int i, int j)
 {
     Edge temp = edges[i];
@@ -101,37 +97,40 @@ void swap(Edge* edges, int i, int j)
     edges[j] = temp;
 }
 
-// 简单冒泡排序（按权值从小到大）
-void sort_edges(Edge* edges, int edge_num)
+// 你的截图里 sortEdges 就是这种双层循环（类似选择排序/冒泡的变体）
+void sortEdges(Edge edges[], int edge_num)
 {
-    for (int i = 0; i < edge_num - 1; i++)
+    for (int i = 0; i < edge_num; i++)
     {
-        for (int j = 0; j < edge_num - 1 - i; j++)
+        for (int j = i + 1; j < edge_num; j++)
         {
-            if (edges[j].weight > edges[j + 1].weight)
+            if (edges[i].weight > edges[j].weight)
             {
-                swap(edges, j, j + 1);
+                swap(edges, i, j);
             }
         }
     }
 }
 
-// 并查集：查找根
-int find(int* parent, int f)
+// 并查集：找根
+int find(int parent[], int f)
 {
     while (parent[f] > 0)
         f = parent[f];
     return f;
 }
 
-// 从邻接矩阵提取边集（只取 i<j 防止重复）
-void get_edges(Mat_Grph G, Edge* edges)
+void Kruskal(Mat_Grph G)
 {
+    Edge edges[MAXEDGE];
     int k = 0;
+
+    // 1) 从邻接矩阵提取边集（只取 i<j，避免无向边重复）
     for (int i = 0; i < G.vertex_num; i++)
     {
         for (int j = i + 1; j < G.vertex_num; j++)
         {
+            // 注意：必须排除 MAX（无边）和 0（对角线/无意义边）
             if (G.arc[i][j] != MAX && G.arc[i][j] != 0)
             {
                 edges[k].begin  = i;
@@ -141,48 +140,53 @@ void get_edges(Mat_Grph G, Edge* edges)
             }
         }
     }
-}
 
-// Kruskal 最小生成树
-void Kruskal(Mat_Grph G)
-{
-    int parent[MAXSIZE] = {0};
-    Edge edges[MAXEDGE];
+    // 保险：如果你写的 edge_num 和实际提取不一致，就以实际提取 k 为准
+    // 否则容易越界或漏边
+    int edge_num = k;
 
-    // 1）提取边集
-    get_edges(G, edges);
+    // 2) 按权值排序
+    sortEdges(edges, edge_num);
 
-    // 2）排序边（从小到大）
-    sort_edges(edges, G.edge_num);
+    // 3) 并查集初始化（你的截图是 parent[i] = 0）
+    int parent[MAXSIZE];
+    for (int i = 0; i < G.vertex_num; i++)
+        parent[i] = 0;
 
-    // 3）依次选边（并查集判断是否成环）
-    for (int i = 0; i < G.edge_num; i++)
+    // 4) 依次选边：不成环就加入 MST
+    int n, m;
+    int total = 0;
+    int chosen = 0;
+
+    for (int i = 0; i < edge_num; i++)
     {
-        int n = find(parent, edges[i].begin);
-        int m = find(parent, edges[i].end);
+        n = find(parent, edges[i].begin);
+        m = find(parent, edges[i].end);
 
-        if (n != m) // 不在同一个集合 → 不成环 → 选这条边
+        if (n != m)
         {
-            parent[n] = m;
+            parent[n] = m;  // 合并集合（把 n 的根挂到 m 上）
+
             printf("(%c, %c) %d\n",
                    G.vertex[edges[i].begin],
                    G.vertex[edges[i].end],
                    edges[i].weight);
+
+            total += edges[i].weight;
+            chosen++;
+
+            // MST 选到 (V-1) 条边就结束
+            if (chosen == G.vertex_num - 1) break;
         }
     }
+
+    printf("Total weight = %d\n", total);
 }
 
-int main()
+int main(int argc, char const *argv[])
 {
     Mat_Grph G;
     create_graph(&G);
     Kruskal(G);
     return 0;
 }
-
-
-
-
-
-
-
