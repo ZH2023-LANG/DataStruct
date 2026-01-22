@@ -2,7 +2,9 @@
 #include <stdlib.h>
 typedef char VertexType;
 typedef int EdgeType;
+
 #define MAXSIZE 100
+#define MAXEDGE 200
 #define MAX 0x7fffffff
 
 typedef struct 
@@ -14,28 +16,41 @@ typedef struct
 }Mat_Grph;
 
 
-void create_graph(Mat_Grph* G){
-    G->vertex_num=9;
-    G->edge_num=15;
-    G->vertex[0]='A';
-    G->vertex[1]='B';
-    G->vertex[2]='C';
-    G->vertex[3]='D';
-    G->vertex[4]='E';
-    G->vertex[5]='F';
-    G->vertex[6]='G';
-    G->vertex[7]='H';
-    G->vertex[8]='I';
 
+typedef struct 
+{
+    int begin;
+    int end;
+    int weight;
+}Edge;
+
+void create_graph(Mat_Grph* G)
+{
+    G->vertex_num = 9;
+    G->edge_num   = 15;
+
+    G->vertex[0] = 'A';
+    G->vertex[1] = 'B';
+    G->vertex[2] = 'C';
+    G->vertex[3] = 'D';
+    G->vertex[4] = 'E';
+    G->vertex[5] = 'F';
+    G->vertex[6] = 'G';
+    G->vertex[7] = 'H';
+    G->vertex[8] = 'I';
+
+    // 初始化：对角线0，其余MAX
     for (int i = 0; i < G->vertex_num; i++)
     {
         for (int j = 0; j < G->vertex_num; j++)
         {
-            if(i==j) G->arc[i][j]=0;
-            else G->arc[i][j]=MAX;
+            if (i == j) G->arc[i][j] = 0;
+            else        G->arc[i][j] = MAX;
         }
     }
-        // A-B  A-F
+
+    // 赋权（无向图）
+    // A-B  A-F
     G->arc[0][1] = 10;
     G->arc[0][5] = 11;
 
@@ -64,82 +79,94 @@ void create_graph(Mat_Grph* G){
     // G-H
     G->arc[6][7] = 19;
 
+    // 补成对称（无向图）
     for (int i = 0; i < G->vertex_num; i++)
     {
         for (int j = 0; j < G->vertex_num; j++)
         {
-            G->arc[j][i]=G->arc[i][j];
+            G->arc[j][i] = G->arc[i][j];
+        }
+    }
+}
+
+void swap(Edge* edges,int i,int j){
+    Edge temp=edges[i];
+    edges[i]=edges[j];
+    edges[j]=temp;
+}
+
+void sortEdges(Edge edges[],int edge_num){
+    for (int i = 0; i < edge_num; i++)
+    {
+        for (int j = i+1; j < edge_num; j++)
+        {
+            if(edges[i].weight>edges[j].weight) swap(edges,i,j);
         }   
     }
 }
 
-
-void prim(Mat_Grph* G){
-    int i,j,k;
-    int min;
-
-    int weight[MAXSIZE];
-    int vex_index[MAXSIZE];
-
-    weight[0]=0;
-    vex_index[0]=0;
-    for ( i = 0; i < G->vertex_num; i++)
+int find(int parent[],int f){
+    while (parent[f]>0)
     {
-        weight[i]=G->arc[0][i];
-        vex_index[i]=0;
+        f=parent[f];
     }
-    for ( i = 1; i < G->vertex_num; i++)
+    return f;
+}
+
+void Kruskal(Mat_Grph G){
+    Edge edges[MAXEDGE];
+    int k=0;
+    for (int i = 0; i < G.vertex_num; i++)
     {
-        min=MAX;
-        j=0;
-        k=0;
-        while (j<G->vertex_num)
+        for (int j = i+1; j < G.vertex_num; j++)
         {
-            if (weight[j]!=0 && weight[j]<min)
+            if (G.arc[i][j]!=MAX && G.arc[i][j]!=0)
             {
-                min=weight[j];
-                k=j;
-            }
-            j++;
+                edges[k].begin=i;
+                edges[k].end=j;
+                edges[k].weight=G.arc[i][j];
+                k++;
+            } 
         }
-        printf("(%c,%c)\n",G->vertex[vex_index[k]],G->vertex[k]);
-        weight[k]=0;
-        for (int j = 0; j < G->vertex_num; j++)
+    }
+    int edge_num=k;
+    sortEdges(edges,edge_num);
+    int parent[MAXSIZE];
+    for (int i = 0; i <G.vertex_num ; i++)
+    {
+        parent[i]=0;
+    }
+    int n,m;
+    int total=0;
+    int chosen=0;
+    for (int i = 0; i < edge_num; i++)
+    {
+        n=find(parent,edges[i].begin);
+        m=find(parent,edges[i].end);
+        if (n!=m)
         {
-            if (weight[j]!=0 && G->arc[k][j]<weight[j])
+            parent[n]=m;
+            printf("(%c %c) %d\n",
+            G.vertex[edges[i].begin],
+            G.vertex[edges[i].end],
+            edges[i].weight);
+            total+=edges[i].weight;
+            chosen++;
+            if (chosen==G.vertex_num-1)
             {
-                weight[j]=G->arc[k][j];
-                vex_index[j]=k;
+                break;
             }
             
         }
         
     }
-    
+    printf("Total weight=%d\n",total);
 }
-
-
 
 
 int main(){
     Mat_Grph G;
     create_graph(&G);
-    prim(&G);
+    Kruskal(G);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
